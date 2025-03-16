@@ -5,10 +5,12 @@
     "cdk": "bin/cdk.js"
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
+    "build": "./node_modules/typescript/bin/tsc",
+    "watch": "./node_modules/typescript/bin/tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "cdk:diff-dev": "cdk diff -c environment=dev --profile onishi || true",
+    "cdk:deploy-dev": "cdk deploy --all --require-approval never -c environment=dev --profile onishi"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

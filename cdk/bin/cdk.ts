@@ -3,6 +3,14 @@ import * as cdk from 'aws-cdk-lib';
 import { CdkStack } from '../lib/cdk-stack';
 
 const app = new cdk.App();
+
+const argContext = 'environment';
+const envKey = app.node.tryGetContext(argContext);
+    if (envKey == undefined)
+      throw new Error(`Please specify environment with context option. ex) cdk deploy -c ${argContext}=stg`);
+const envVals = app.node.tryGetContext(envKey);
+    if (envVals == undefined) throw new Error('Invalid environment.');
+
 new CdkStack(app, 'CdkStack', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,

@@ -158,8 +158,8 @@ const context = this.node.tryGetContext(envKey);
     // Log用S3取得
     // const accessLogsBucket = s3.Bucket.fromBucketName(this, "MyBucket", `${context.AWSENV}-to2go-app-s3-access-logs-bucket`);
 
-    // vpc.addFlowLog('FlowLogS3', {
-    //   destination: ec2.FlowLogDestination.toS3(accessLogsBucket,`vpc-flow-log/${context.AWSENV}-to2go-app-vpc/`)
-    // });
+    vpc.addFlowLog('FlowLogS3', {
+      destination: ec2.FlowLogDestination.toS3(accessLogsBucket,`vpc-flow-log/${context.AWSENV}-to2go-app-vpc/`)
+    });
   };
 };

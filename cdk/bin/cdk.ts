@@ -2,6 +2,7 @@
 import * as cdk from 'aws-cdk-lib';
 // import { CdkStack } from '../lib/cdk-stack';
 import {VpcStack} from '../lib/vpc-stack';
+import {EcrStack} from "../lib/ecr-stack";
 
 const app = new cdk.App();
 
@@ -18,7 +19,11 @@ const env = { account: envVals['env']['account'], region: envVals['env']['region
 // VPC Stackを作成
 const vpcStack = new VpcStack(app, 'VpcStack', {
   env,
-});
+})
+
+const ecrStack = new EcrStack(app, 'EcrStack', {
+  env,
+})
 
 // new CdkStack(app, 'CdkStack', {
 //   /* If you don't specify 'env', this stack will be environment-agnostic.

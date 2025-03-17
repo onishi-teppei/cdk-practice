@@ -1,0 +1,11 @@
+<h1>メッセージボード</h1>
+
+<%= form_with model: @message, local: true do |form| %>
+  <%= form.text_area :content, placeholder: "メッセージを入力" %>
+  <%= form.submit "投稿" %>
+<% end %>
+
+<h2>投稿されたメッセージ</h2>
+<% @messages.each do |message| %>
+  <p><%= message.content %></p>
+<% end %>

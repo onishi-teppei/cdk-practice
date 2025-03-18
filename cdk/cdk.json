@@ -39,7 +39,7 @@
       "AMIID" : "to2go-matching-server-master",
       "EC2TYPE" : "c6id.large",
       "RDSTYPE" : "t3.medium",
-      "RDSVER" : "VER_3_05_2",
+      "RDSVER" : "VER_3_08_1",
       "REDISCLSIP" : "eld1moy9qozb66lj",
       "LOGFILTER" : "?ERROR ?FATAL ?WARN",
       "ONLINECPU" : 256,

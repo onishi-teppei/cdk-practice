@@ -112,7 +112,7 @@ const context = this.node.tryGetContext(envKey);
       secrets: {
         // 'CLIENT_ORIGIN': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CLIENT_ORIGIN', 'CLIENT_ORIGIN')),
         // 'CORS_ALLOWED_ORIGINS': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CORS_ALLOWED_ORIGINS', 'CORS_ALLOWED_ORIGINS')),
-        'DB_DATABASE': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_DATABASE', 'DB_DATABASE')),
+        // 'DB_DATABASE': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_DATABASE', 'DB_DATABASE')),
         'DB_HOST': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_HOST', 'DB_HOST')),
         'DB_PASSWORD': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_PASSWORD', 'DB_PASSWORD')),
         'DB_PORT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_PORT', 'DB_PORT')),

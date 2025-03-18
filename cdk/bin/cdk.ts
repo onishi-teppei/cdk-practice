@@ -26,9 +26,9 @@ const ecrStack = new EcrStack(app, 'EcrStack', {
   env,
 })
 
-const ecsFargateOnlineStack = new EcsFargateOnlineStack(app, 'EcsFargateOnlineStack', {
-  env,
-})
+// const ecsFargateOnlineStack = new EcsFargateOnlineStack(app, 'EcsFargateOnlineStack', {
+//   env,
+// })
 
 // new CdkStack(app, 'CdkStack', {
 //   /* If you don't specify 'env', this stack will be environment-agnostic.

@@ -38,7 +38,7 @@ const context = this.node.tryGetContext(envKey);
       iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'),
       ],
     })
-  
+
     const ssmPolicy = new iam.Policy(this, 'ssm-policy', {
         statements:[ new iam.PolicyStatement( {
            effect: iam.Effect.ALLOW,
@@ -55,33 +55,33 @@ const context = this.node.tryGetContext(envKey);
       assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
     })
 
-    const staticbucket = s3.Bucket.fromBucketName(this, "Bucket", `${context.AWSENV}-to2go-app-s3`);
+    // const staticbucket = s3.Bucket.fromBucketName(this, "Bucket", `${context.AWSENV}-to2go-app-s3`);
 
-    const s3Policy = new iam.Policy(this, 's3-policy', {
-          statements:[ new iam.PolicyStatement( {
-          effect: iam.Effect.ALLOW,
-          actions: ['s3:ListBucket', 's3:PutObject', 's3:GetObject', 's3:DeleteObject'],
-          resources : [`${staticbucket.bucketArn}/*`]},
-          )],
-    })
+    // const s3Policy = new iam.Policy(this, 's3-policy', {
+    //       statements:[ new iam.PolicyStatement( {
+    //       effect: iam.Effect.ALLOW,
+    //       actions: ['s3:ListBucket', 's3:PutObject', 's3:GetObject', 's3:DeleteObject'],
+    //       resources : [`${staticbucket.bucketArn}/*`]},
+    //       )],
+    // })
 
-    const ecsexecPolicy = new iam.Policy(this, 'ecsexec-policy', {
-      statements:[ new iam.PolicyStatement( {
-      effect: iam.Effect.ALLOW,
-      actions: ['ssmmessages:CreateControlChannel','ssmmessages:CreateDataChannel','ssmmessages:OpenControlChannel','ssmmessages:OpenDataChannel'],
-      resources : ["*"]},
-      )],
-    })
+    // const ecsexecPolicy = new iam.Policy(this, 'ecsexec-policy', {
+    //   statements:[ new iam.PolicyStatement( {
+    //   effect: iam.Effect.ALLOW,
+    //   actions: ['ssmmessages:CreateControlChannel','ssmmessages:CreateDataChannel','ssmmessages:OpenControlChannel','ssmmessages:OpenDataChannel'],
+    //   resources : ["*"]},
+    //   )],
+    // })
 
-    serviceTaskRole.attachInlinePolicy(s3Policy)
-    serviceTaskRole.attachInlinePolicy(ecsexecPolicy)
+    // serviceTaskRole.attachInlinePolicy(s3Policy)
+    // serviceTaskRole.attachInlinePolicy(ecsexecPolicy)
 
 // ECS TaskDefinition
 
     const logGroup = new logs.LogGroup(this, 'ServiceLogGroup', {
       logGroupName: `${context.AWSENV}-to2go-app-online-fargate-log`
     })
-  
+
     const ecrname = ecr.Repository.fromRepositoryName(this ,'ecrname', `${context.AWSENV}-to2go-app-ecr-repository`)
     const image = ContainerImage.fromEcrRepository(ecrname, 'latest')
 
@@ -91,7 +91,7 @@ const context = this.node.tryGetContext(envKey);
       cpu: context.ONLINECPU,
       memoryLimitMiB: context.ONLINEMEMORY,
     })
-  
+
     serviceTaskDefinition.addContainer(`${context.AWSENV}-to2go-app-online`, {
       image:image,
       cpu: context.ONLINECPU,
@@ -110,44 +110,44 @@ const context = this.node.tryGetContext(envKey);
         "0.0.0.0"
       ],
       secrets: {
-        'CLIENT_ORIGIN': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CLIENT_ORIGIN', 'CLIENT_ORIGIN')),
-        'CORS_ALLOWED_ORIGINS': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CORS_ALLOWED_ORIGINS', 'CORS_ALLOWED_ORIGINS')),
+        // 'CLIENT_ORIGIN': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CLIENT_ORIGIN', 'CLIENT_ORIGIN')),
+        // 'CORS_ALLOWED_ORIGINS': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CORS_ALLOWED_ORIGINS', 'CORS_ALLOWED_ORIGINS')),
         'DB_DATABASE': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_DATABASE', 'DB_DATABASE')),
         'DB_HOST': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_HOST', 'DB_HOST')),
         'DB_PASSWORD': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_PASSWORD', 'DB_PASSWORD')),
         'DB_PORT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_PORT', 'DB_PORT')),
         'DB_USERNAME': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_USERNAME', 'DB_USERNAME')),
-        'INTEC_ENDPOINT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'INTEC_ENDPOINT', 'INTEC_ENDPOINT')),
-        'JWT_PRIVATE_KEY': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'JWT_PRIVATE_KEY', 'JWT_PRIVATE_KEY')),
-        'RAILS_ENV': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'RAILS_ENV', 'RAILS_ENV')),
-        'RAILS_HOST': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'RAILS_HOST', 'RAILS_HOST')),
-        'RAILS_LOG_TO_STDOUT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'RAILS_LOG_TO_STDOUT', 'RAILS_LOG_TO_STDOUT')),
-        'REDIS_DB': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'REDIS_DB', 'REDIS_DB')),
-        'REDIS_HOST': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'REDIS_HOST', 'REDIS_HOST')),
-        'REDIS_PORT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'REDIS_PORT', 'REDIS_PORT')),
-        'SECRET_KEY_BASE': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'SECRET_KEY_BASE', 'SECRET_KEY_BASE')),
-        'SIMOUNT_ENDPOINT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'SIMOUNT_ENDPOINT', 'SIMOUNT_ENDPOINT')),
-        'SIDEKIQ_LOGIN_ID': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'SIDEKIQ_LOGIN_ID', 'SIDEKIQ_LOGIN_ID')),
-        'SIDEKIQ_LOGIN_PASS': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'SIDEKIQ_LOGIN_PASS', 'SIDEKIQ_LOGIN_PASS')),
-        'S3_BUCKET_NAME': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'S3_BUCKET_NAME', 'S3_BUCKET_NAME')),
-        'SERVER_HOST': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'SERVER_HOST', 'SERVER_HOST')),
-        'ACTIVE_STORAGE_S3_BUCKET': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'ACTIVE_STORAGE_S3_BUCKET', 'ACTIVE_STORAGE_S3_BUCKET')),
-        'DB_TEST_DATABASE': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_TEST_DATABASE', 'DB_TEST_DATABASE')),
-        'INTEC_AWS_ACCESS_KEY': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'INTEC_AWS_ACCESS_KEY', 'INTEC_AWS_ACCESS_KEY')),
-        'INTEC_AWS_SECRET_KEY': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'INTEC_AWS_SECRET_KEY', 'INTEC_AWS_SECRET_KEY')),
-        'INTEC_AWS_REGION': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'INTEC_AWS_REGION', 'INTEC_AWS_REGION')),
-        'LOGS_S3_BUCKET_NAME': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'ILOGS_S3_BUCKET_NAME', 'LOGS_S3_BUCKET_NAME')),
-        'OPENAI_ACCESS_TOKEN': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'OPENAI_ACCESS_TOKEN', 'OPENAI_ACCESS_TOKEN')),
-        'OPENAI_SHOW_LOG_ERRORS': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'OPENAI_SHOW_LOG_ERRORS', 'OPENAI_SHOW_LOG_ERRORS')),
-        'CPASS_TOKEN': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CPASS_TOKEN', 'CPASS_TOKEN')),
-        'CPASS_URI': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CPASS_URI', 'CPASS_URI')),
-        'FROM_ADDRESS': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'FROM_ADDRESS', 'FROM_ADDRESS')),
-        'CPAAS_TOKEN': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CPAAS_TOKEN', 'CPAAS_TOKEN')),
-        'CPAAS_URI': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CPAAS_URI', 'CPAAS_URI')),
-        'CPAAS_FROM_ADDRESS': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CPAAS_FROM_ADDRESS', 'CPAAS_FROM_ADDRESS')),
-        'DOCUMENT_INTELLIGENCE_API_KEY': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DOCUMENT_INTELLIGENCE_API_KEY', 'DOCUMENT_INTELLIGENCE_API_KEY')),
-        'DOCUMENT_INTELLIGENCE_ENDPOINT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DOCUMENT_INTELLIGENCE_ENDPOINT', 'DOCUMENT_INTELLIGENCE_ENDPOINT')),
-        'LD_PRELOAD': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'LD_PRELOAD', 'LD_PRELOAD')),
+        // 'INTEC_ENDPOINT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'INTEC_ENDPOINT', 'INTEC_ENDPOINT')),
+        // 'JWT_PRIVATE_KEY': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'JWT_PRIVATE_KEY', 'JWT_PRIVATE_KEY')),
+        // 'RAILS_ENV': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'RAILS_ENV', 'RAILS_ENV')),
+        // 'RAILS_HOST': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'RAILS_HOST', 'RAILS_HOST')),
+        // 'RAILS_LOG_TO_STDOUT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'RAILS_LOG_TO_STDOUT', 'RAILS_LOG_TO_STDOUT')),
+        // 'REDIS_DB': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'REDIS_DB', 'REDIS_DB')),
+        // 'REDIS_HOST': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'REDIS_HOST', 'REDIS_HOST')),
+        // 'REDIS_PORT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'REDIS_PORT', 'REDIS_PORT')),
+        // 'SECRET_KEY_BASE': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'SECRET_KEY_BASE', 'SECRET_KEY_BASE')),
+        // 'SIMOUNT_ENDPOINT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'SIMOUNT_ENDPOINT', 'SIMOUNT_ENDPOINT')),
+        // 'SIDEKIQ_LOGIN_ID': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'SIDEKIQ_LOGIN_ID', 'SIDEKIQ_LOGIN_ID')),
+        // 'SIDEKIQ_LOGIN_PASS': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'SIDEKIQ_LOGIN_PASS', 'SIDEKIQ_LOGIN_PASS')),
+        // 'S3_BUCKET_NAME': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'S3_BUCKET_NAME', 'S3_BUCKET_NAME')),
+        // 'SERVER_HOST': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'SERVER_HOST', 'SERVER_HOST')),
+        // 'ACTIVE_STORAGE_S3_BUCKET': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'ACTIVE_STORAGE_S3_BUCKET', 'ACTIVE_STORAGE_S3_BUCKET')),
+        // 'DB_TEST_DATABASE': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_TEST_DATABASE', 'DB_TEST_DATABASE')),
+        // 'INTEC_AWS_ACCESS_KEY': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'INTEC_AWS_ACCESS_KEY', 'INTEC_AWS_ACCESS_KEY')),
+        // 'INTEC_AWS_SECRET_KEY': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'INTEC_AWS_SECRET_KEY', 'INTEC_AWS_SECRET_KEY')),
+        // 'INTEC_AWS_REGION': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'INTEC_AWS_REGION', 'INTEC_AWS_REGION')),
+        // 'LOGS_S3_BUCKET_NAME': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'ILOGS_S3_BUCKET_NAME', 'LOGS_S3_BUCKET_NAME')),
+        // 'OPENAI_ACCESS_TOKEN': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'OPENAI_ACCESS_TOKEN', 'OPENAI_ACCESS_TOKEN')),
+        // 'OPENAI_SHOW_LOG_ERRORS': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'OPENAI_SHOW_LOG_ERRORS', 'OPENAI_SHOW_LOG_ERRORS')),
+        // 'CPASS_TOKEN': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CPASS_TOKEN', 'CPASS_TOKEN')),
+        // 'CPASS_URI': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CPASS_URI', 'CPASS_URI')),
+        // 'FROM_ADDRESS': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'FROM_ADDRESS', 'FROM_ADDRESS')),
+        // 'CPAAS_TOKEN': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CPAAS_TOKEN', 'CPAAS_TOKEN')),
+        // 'CPAAS_URI': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CPAAS_URI', 'CPAAS_URI')),
+        // 'CPAAS_FROM_ADDRESS': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CPAAS_FROM_ADDRESS', 'CPAAS_FROM_ADDRESS')),
+        // 'DOCUMENT_INTELLIGENCE_API_KEY': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DOCUMENT_INTELLIGENCE_API_KEY', 'DOCUMENT_INTELLIGENCE_API_KEY')),
+        // 'DOCUMENT_INTELLIGENCE_ENDPOINT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DOCUMENT_INTELLIGENCE_ENDPOINT', 'DOCUMENT_INTELLIGENCE_ENDPOINT')),
+        // 'LD_PRELOAD': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'LD_PRELOAD', 'LD_PRELOAD')),
       },
       logging: ecs.LogDriver.awsLogs({
       streamPrefix: `${context.AWSENV}-to2go-app-online-fargate-log`,
@@ -158,7 +158,7 @@ const context = this.node.tryGetContext(envKey);
       hostPort: 8000,
       protocol: ecs.Protocol.TCP,
     })
-  
+
 // ECS Service
 
     const cluster = new ecs.Cluster(this, `${context.AWSENV}-to2go-app-online-ecs-cluster`, {
@@ -166,7 +166,7 @@ const context = this.node.tryGetContext(envKey);
       clusterName: `${context.AWSENV}-to2go-app-online-ecs-cluster`,
       containerInsights: true
     })
- 
+
     const securityGroup = new ec2.SecurityGroup(this, `${context.AWSENV}-to2go-app-online-securitygroup`, {
       vpc,
       securityGroupName: `${context.AWSENV}-to2go-app-online-securitygroup`,
@@ -181,7 +181,7 @@ const context = this.node.tryGetContext(envKey);
   const serviceFargateService = new ecs.FargateService(this, 'ServiceServiceDefinition', {
   serviceName: `${context.AWSENV}-to2go-app-online-fargate-service`,
   cluster,
-  vpcSubnets: vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }),
+  vpcSubnets: vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }), // プライベートサブネットを選択
   securityGroups: [securityGroup],
   taskDefinition: serviceTaskDefinition,
   assignPublicIp: true,

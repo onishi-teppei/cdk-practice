@@ -38,7 +38,7 @@
       "ELBCERT" : "arn:aws:acm:ap-northeast-1:688567270769:certificate/2dea97a9-6a3d-4134-8746-509604c79625",
       "AMIID" : "to2go-matching-server-master",
       "EC2TYPE" : "c6id.large",
-      "RDSTYPE" : "t3.medium", 
+      "RDSTYPE" : "t3.medium",
       "RDSVER" : "VER_3_05_2",
       "REDISCLSIP" : "eld1moy9qozb66lj",
       "LOGFILTER" : "?ERROR ?FATAL ?WARN",

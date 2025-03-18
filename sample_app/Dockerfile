@@ -5,6 +5,18 @@ ENV TZ=Asia/Tokyo
 
 WORKDIR /usr/src/app
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential default-mysql-client default-libmysqlclient-dev git \
-    && apt-get clean
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    default-mysql-client \
+    default-libmysqlclient-dev \
+    nodejs \
+    vim \
+    git \
+    libyaml-dev \
+    libjemalloc2
+
+COPY Gemfile /usr/src/app
+COPY Gemfile.lock /usr/src/app
+RUN bundle install
+COPY . /usr/src/app

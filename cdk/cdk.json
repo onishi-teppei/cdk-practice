@@ -19,7 +19,7 @@
   "context": {
     "dev": {
       "env":{
-        "account": "908046611001",
+        "account": "394253456454",
         "region": "ap-northeast-1"
       },
       "AWSENV" : "dev",

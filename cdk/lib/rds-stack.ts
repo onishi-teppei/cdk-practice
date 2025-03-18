@@ -80,7 +80,7 @@ const context = this.node.tryGetContext(envKey);
     // LogsRetentionRole.attachInlinePolicy(LogsRetentionPolicy)
 
     //RDS作成
-    const dbpw = ssm.StringParameter.valueFromLookup(this, 'TO2GO_DB_PASSWORD')
+    const dbpw = ssm.StringParameter.valueFromLookup(this, '/to2go/DB_PASSWORD')
 
     // AuroraMysqlEngineVersion を動的に取得
     const auroraMysqlEngineVersion = (rds.AuroraMysqlEngineVersion as any)[context.RDSVER]; //https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.AuroraMysqlEngineVersion.htmlより指定

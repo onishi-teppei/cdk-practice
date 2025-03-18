@@ -27,11 +27,11 @@ const ecrStack = new EcrStack(app, 'EcrStack', {
   env,
 })
 
-new RdsStack(app, 'RdsStack', {
+const ecsFargateOnlineStack = new EcsFargateOnlineStack(app, 'EcsFargateOnlineStack', {
   env,
 })
 
-const ecsFargateOnlineStack = new EcsFargateOnlineStack(app, 'EcsFargateOnlineStack', {
+new RdsStack(app, 'RdsStack', {
   env,
 })
 

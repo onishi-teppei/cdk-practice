@@ -59,31 +59,31 @@ const context = this.node.tryGetContext(envKey);
     });
 
     // パブリックサブネットを作成
-    const publicSubnet1a = new ec2.CfnSubnet(this, `${context.AWSENV}-to2go-app-public-subnet1a`, {
+    const publicSubnet1a = new ec2.CfnSubnet(this, `${context.AWSENV}-to2go-app-public-subnet1c`, {
       vpcId: vpc.vpcId,
-      availabilityZone: "ap-northeast-1a",
+      availabilityZone: "ap-northeast-1c",
       cidrBlock: context.APPVPC_PUBSUB1,
       mapPublicIpOnLaunch: true,
       tags: [{ key: "Name", value: `${context.AWSENV}-to2go-app-public-subnet1` }]
     });
 
     // パブリックサブネットを作成
-    const publicSubnet1c = new ec2.CfnSubnet(this, `${context.AWSENV}-to2go-app-public-subnet1c`, {
+    const publicSubnet1c = new ec2.CfnSubnet(this, `${context.AWSENV}-to2go-app-public-subnet1d`, {
       vpcId: vpc.vpcId,
-      availabilityZone: "ap-northeast-1c",
+      availabilityZone: "ap-northeast-1d",
       cidrBlock: context.APPVPC_PUBSUB2,
       mapPublicIpOnLaunch: true,
       tags: [{ key: "Name", value: `${context.AWSENV}-to2go-app-public-subnet2` }]
     });
 
     // パブリックサブネットをルートテーブルにアタッチ
-    const publicassociation1a = new ec2.CfnSubnetRouteTableAssociation(this, `${context.AWSENV}-to2go-app-public-rtb--association1a`, {
+    const publicassociation1a = new ec2.CfnSubnetRouteTableAssociation(this, `${context.AWSENV}-to2go-app-public-rtb--association1c`, {
       routeTableId: publicRouteTable.ref,
       subnetId: publicSubnet1a.attrSubnetId,
     });
 
     // パブリックサブネットをルートテーブルにアタッチ
-    const publicassociation1c = new ec2.CfnSubnetRouteTableAssociation(this, `${context.AWSENV}-to2go-app-public-rtb--association1c`, {
+    const publicassociation1c = new ec2.CfnSubnetRouteTableAssociation(this, `${context.AWSENV}-to2go-app-public-rtb--association1d`, {
       routeTableId: publicRouteTable.ref,
       subnetId: publicSubnet1c.attrSubnetId,
     });
@@ -103,7 +103,7 @@ const context = this.node.tryGetContext(envKey);
     // プライベートサブネットを作成
     const privateSubnet1a = new ec2.CfnSubnet(this, `${context.AWSENV}-to2go-app-private-subnet1a`, {
       vpcId: vpc.vpcId,
-      availabilityZone: "ap-northeast-1a",
+      availabilityZone: "ap-northeast-1c",
       cidrBlock: context.APPVPC_PRISUB1,
       mapPublicIpOnLaunch: false,
       tags: [{ key: "Name", value: `${context.AWSENV}-to2go-app-private-subnet1` }]
@@ -111,7 +111,7 @@ const context = this.node.tryGetContext(envKey);
 
     const privateSubnet1c = new ec2.CfnSubnet(this, `${context.AWSENV}-to2go-app-private-subnet1c`, {
       vpcId: vpc.vpcId,
-      availabilityZone: "ap-northeast-1c",
+      availabilityZone: "ap-northeast-1d",
       cidrBlock: context.APPVPC_PRISUB2,
       mapPublicIpOnLaunch: false,
       tags: [{ key: "Name", value: `${context.AWSENV}-to2go-app-private-subnet2` }]
@@ -129,33 +129,33 @@ const context = this.node.tryGetContext(envKey);
     });
 
     // Elastic IP
-    // const eip = new ec2.CfnEIP(this, `${context.AWSENV}-to2go-app-eip-natgw`,{
-    //   tags: [{
-    //     key: 'Name',
-    //     value: `${context.AWSENV}-to2go-app-eip-natgw`,
-    //   }],
-    // });
+    const eip = new ec2.CfnEIP(this, `${context.AWSENV}-to2go-app-eip-natgw`,{
+      tags: [{
+        key: 'Name',
+        value: `${context.AWSENV}-to2go-app-eip-natgw`,
+      }],
+    });
 
     // NAT Gateway
-    // const cfnNatGateway = new ec2.CfnNatGateway(this, `${context.AWSENV}-to2go-app-natgw`, {
-    //   subnetId: publicSubnet1a.attrSubnetId,
-    //   allocationId: eip.attrAllocationId,
-    //   connectivityType: 'public',
-    //   tags: [{
-    //     key: 'Name',
-    //     value: `${context.AWSENV}-to2go-app-natgw`,
-    //   }],
-    // });
+    const cfnNatGateway = new ec2.CfnNatGateway(this, `${context.AWSENV}-to2go-app-natgw`, {
+      subnetId: publicSubnet1a.attrSubnetId,
+      allocationId: eip.attrAllocationId,
+      connectivityType: 'public',
+      tags: [{
+        key: 'Name',
+        value: `${context.AWSENV}-to2go-app-natgw`,
+      }],
+    });
 
-    // // NAT Gateway route
-    // const natRoute = new ec2.CfnRoute(this, `${context.AWSENV}-to2go-app-private-rtb-nat`, {
-    //   routeTableId: privateRouteTable.ref,
-    //   destinationCidrBlock: "0.0.0.0/0",
-    //   natGatewayId: cfnNatGateway.attrNatGatewayId,
-    // });
+    // NAT Gateway route
+    const natRoute = new ec2.CfnRoute(this, `${context.AWSENV}-to2go-app-private-rtb-nat`, {
+      routeTableId: privateRouteTable.ref,
+      destinationCidrBlock: "0.0.0.0/0",
+      natGatewayId: cfnNatGateway.attrNatGatewayId,
+    });
 
-    //VPCフローログの設定
-    //Log用S3取得
+    // VPCフローログの設定
+    // Log用S3取得
     // const accessLogsBucket = s3.Bucket.fromBucketName(this, "MyBucket", `${context.AWSENV}-to2go-app-s3-access-logs-bucket`);
 
     // vpc.addFlowLog('FlowLogS3', {

@@ -232,7 +232,7 @@ export class EcsFargateOnlineStack extends cdk.Stack {
       targetType: albv2.TargetType.IP,
       healthCheck: {
         path: '/',
-        healthyHttpCodes: '200',
+        healthyHttpCodes: '200-399',
       },
     });
 

@@ -1,0 +1,133 @@
+name: Dev App Deploy to AWS Fargate
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - 'sample_app/**'
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_REPOSITORY: dev-to2go-app-ecr-repository
+  AWS_ASSUME_ROLE: ${{ secrets.AWSDEPLOYROLE }}
+  ECS_SERVICE_ONLINE: dev-to2go-app-online-fargate-service
+  ECS_CLUSTER_ONLINE: dev-to2go-app-online-ecs-cluster
+  CONTAINER_NAME_ONLINE: dev-to2go-app-online
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_ASSUME_ROLE }}
+          aws-region:  ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f sample_app/Dockerfile ./sample_app
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+
+      - name: Download online task definition
+        run: |
+          aws ecs describe-task-definition --task-definition EcsFargateOnlineStackServiceTaskDefinitionDB758696 --query taskDefinition > task-definition-online.json
+
+      # - name: Download batch task definition
+      #   run: |
+      #     aws ecs describe-task-definition --task-definition EcsFargateBatchStackServiceTaskDefinition6A34323B --query taskDefinition > task-definition-batch.json
+
+      - name: Fill in the new image ID in the Amazon ECS online task definition
+        id: online-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition-online.json
+          container-name: ${{ env.CONTAINER_NAME_ONLINE }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      # - name: Fill in the new image ID in the Amazon ECS batch task definition
+      #   id: batch-task-def
+      #   uses: aws-actions/amazon-ecs-render-task-definition@c804dfbdd57f713b6c079302a4c01db7017a36fc
+      #   with:
+          # task-definition: task-definition-batch.json
+          # container-name: ${{ env.CONTAINER_NAME_BATCH }}
+          # image: ${{ steps.build-image.outputs.image }}
+
+      # - name: ECS run migration task
+      #   env:
+      #     TASK_DEFINITION: ${{ steps.online-task-def.outputs.task-definition }}
+      #     CLUSTER: ${{ env.ECS_CLUSTER_ONLINE }}
+      #     CONTAINER_OVERRIDES: '{"containerOverrides": [{"name": "prod-to2go-app-online", "command": ["bundle", "exec", "rails", "db:migrate"]}]}'
+      #   run: |
+      #     # 最新のタスク定義リビジョンを取得
+      #     LATEST_REVISION=$(aws ecs list-task-definitions | jq -r '.taskDefinitionArns[]' | grep EcsFargateOnlineStackServiceTaskDefinition | tail -n1)
+      #     echo "LATEST_REVISION: ${LATEST_REVISION}"
+
+      #     # Migration用タスクを実行
+      #     TASK_ARN=$(aws ecs run-task \
+      #       --region ap-northeast-1 \
+      #       --launch-type FARGATE \
+      #       --cluster '${{ env.CLUSTER }}' \
+      #       --network-configuration "awsvpcConfiguration={subnets=[subnet-049b25074e84a94d0],securityGroups=[sg-0c5d306f0e8e1912f],assignPublicIp=DISABLED}" \
+      #       --task-definition $LATEST_REVISION \
+      #       --overrides '${{ env.CONTAINER_OVERRIDES }}' \
+      #       --query tasks[0].taskArn --output text)
+      #     echo "TASK_ARN: ${TASK_ARN}"
+
+      #     # タスクの状態をチェック
+      #     count=0
+      #     max_count=8
+      #     while [ ${count} -le ${max_count} ]
+      #     do
+      #       aws ecs wait tasks-stopped --cluster ${CLUSTER} --tasks ${TASK_ARN}
+      #       task_status=$(aws ecs describe-tasks --cluster ${CLUSTER} --tasks ${TASK_ARN} --query 'tasks[0].lastStatus' --output text)
+      #       if [ "${task_status}" = "STOPPED" ];then
+      #         break
+      #       fi
+      #       count=$((count + 1))
+      #       sleep 10
+      #     done
+
+      #     # タスクの終了コードをチェック
+      #     TASK_EXIT_CODE=$(aws ecs describe-tasks --cluster ${CLUSTER} --tasks ${TASK_ARN} --query 'tasks[0].containers[0].exitCode' --output text)
+      #     echo "TASK_EXIT_CODE: ${TASK_EXIT_CODE}"
+      #     if [ $TASK_EXIT_CODE -ne 0 ]; then
+      #       echo "Migration task failed. Aborting deployment."
+      #       exit 1
+      #     fi
+
+      - name: Deploy Amazon ECS online task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.online-task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE_ONLINE }}
+          cluster: ${{ env.ECS_CLUSTER_ONLINE }}
+          wait-for-service-stability: true
+
+      # - name: Deploy Amazon ECS batch task definition
+      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      #   with:
+      #     task-definition: ${{ steps.batch-task-def.outputs.task-definition }}
+      #     service: ${{ env.ECS_SERVICE_BATCH }}
+      #     cluster: ${{ env.ECS_CLUSTER_BATCH }}
+      #     wait-for-service-stability: true

@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
 COPY Gemfile /usr/src/app
 COPY Gemfile.lock /usr/src/app
 RUN bundle install
+RUN bundle exec rails assets:precompile
 COPY . /usr/src/app
 
 CMD ["bundle", "exec", "rails", "-v"]

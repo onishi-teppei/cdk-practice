@@ -88,9 +88,9 @@ export class EcsFargateOnlineStack extends cdk.Stack {
       taskRole: serviceTaskRole,
       cpu: context.ONLINECPU,
       memoryLimitMiB: context.ONLINEMEMORY,
-      runtimePlatform: {
-        cpuArchitecture: ecs.CpuArchitecture.of('ARM64')
-      }
+      // runtimePlatform: {
+      //   cpuArchitecture: ecs.CpuArchitecture.of('ARM64')
+      // }
     })
 
     serviceTaskDefinition.addContainer(`${context.AWSENV}-to2go-app-online`, {
@@ -103,6 +103,8 @@ export class EcsFargateOnlineStack extends cdk.Stack {
         "exec",
         "rails",
         "s",
+        "-e",
+        "production",
         "-p",
         "8000",
         "-b",
@@ -111,11 +113,13 @@ export class EcsFargateOnlineStack extends cdk.Stack {
       secrets: {
         // 'CLIENT_ORIGIN': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CLIENT_ORIGIN', 'CLIENT_ORIGIN')),
         // 'CORS_ALLOWED_ORIGINS': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'CORS_ALLOWED_ORIGINS', 'CORS_ALLOWED_ORIGINS')),
-        // 'DB_DATABASE': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_DATABASE', 'DB_DATABASE')),
+        'DB_DATABASE': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_DATABASE', '/to2go/DB_DATABASE')),
         'DB_HOST': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_HOST', '/to2go/DB_HOST')),
         'DB_PASSWORD': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_PASSWORD', '/to2go/DB_PASSWORD')),
         'DB_PORT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_PORT', '/to2go/DB_PORT')),
         'DB_USERNAME': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_USERNAME', '/to2go/DB_USERNAME')),
+        'SECRET_KEY_BASE': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'SECRET_KEY_BASE', '/to2go/SECRET_KEY_BASE')),
+        'RAILS_ENV': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'RAILS_ENV', '/to2go/RAILS_ENV')),
         // 'INTEC_ENDPOINT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'INTEC_ENDPOINT', 'INTEC_ENDPOINT')),
         // 'JWT_PRIVATE_KEY': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'JWT_PRIVATE_KEY', 'JWT_PRIVATE_KEY')),
         // 'RAILS_ENV': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'RAILS_ENV', 'RAILS_ENV')),
@@ -228,7 +232,7 @@ export class EcsFargateOnlineStack extends cdk.Stack {
       targetType: albv2.TargetType.IP,
       healthCheck: {
         path: '/',
-        healthyHttpCodes: '200',
+        healthyHttpCodes: '200-399',
       },
     });
 

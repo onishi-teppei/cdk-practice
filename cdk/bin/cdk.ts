@@ -3,8 +3,8 @@ import * as cdk from 'aws-cdk-lib';
 // import { CdkStack } from '../lib/cdk-stack';
 import {VpcStack} from '../lib/vpc-stack';
 import {EcrStack} from "../lib/ecr-stack";
-import {EcsFargateOnlineStack} from "../lib/ecs-fargate-online-stack";
 import {RdsStack} from '../lib/rds-stack';
+import {EcsFargateOnlineStack} from "../lib/ecs-fargate-online-stack";
 
 const app = new cdk.App();
 
@@ -27,11 +27,11 @@ const ecrStack = new EcrStack(app, 'EcrStack', {
   env,
 })
 
-const ecsFargateOnlineStack = new EcsFargateOnlineStack(app, 'EcsFargateOnlineStack', {
+new RdsStack(app, 'RdsStack', {
   env,
 })
 
-new RdsStack(app, 'RdsStack', {
+const ecsFargateOnlineStack = new EcsFargateOnlineStack(app, 'EcsFargateOnlineStack', {
   env,
 })
 

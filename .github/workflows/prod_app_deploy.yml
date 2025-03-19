@@ -45,10 +45,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker buildx create --use
-          docker buildx build --platform linux/arm64 \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
-            -f sample_app/Dockerfile ./sample_app --push
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f sample_app/Dockerfile ./sample_app
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:latest"
 
       - name: Download online task definition

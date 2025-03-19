@@ -22,11 +22,6 @@ COPY Gemfile.lock /usr/src/app
 RUN bundle install
 COPY . /usr/src/app
 
-RUN ls -la
-RUN if [ -z "$SECRET_KEY_BASE" ]; then \
-    echo "SECRET_KEY_BASE environment variable is not set" && exit 1; \
-fi
-
 RUN bundle exec rails assets:precompile RAILS_ENV=production
 
 CMD ["bundle", "exec", "rails", "-v"]

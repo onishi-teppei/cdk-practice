@@ -6,18 +6,18 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as cdk from 'aws-cdk-lib/core';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as logs from 'aws-cdk-lib/aws-logs';
-import * as iam from 'aws-cdk-lib/aws-iam';
+// import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class RdsStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
-const argContext = 'environment';
-const envKey = this.node.tryGetContext(argContext);
-    if (envKey == undefined)
-      throw new Error(`Please specify environment with context option. ex) cdk deploy -c ${argContext}=stg`);
-const context = this.node.tryGetContext(envKey);
-    if (context == undefined) throw new Error('Invalid environment.');
+    const argContext = 'environment';
+    const envKey = this.node.tryGetContext(argContext);
+      if (envKey == undefined)
+        throw new Error(`Please specify environment with context option. ex) cdk deploy -c ${argContext}=stg`);
+    const context = this.node.tryGetContext(envKey);
+      if (context == undefined) throw new Error('Invalid environment.');
 
     //VPC取得　
     const vpc = ec2.Vpc.fromLookup(this, 'VPCapp', {
@@ -90,50 +90,50 @@ const context = this.node.tryGetContext(envKey);
 
     //開発/STG環境用RDS作成(リードレプリカ無し)
     if (envKey === "dev" || envKey === "stg") {
-    const cluster = new rds.DatabaseCluster(this, `${context.AWSENV}-to2go-app-rds-aurora`, {
-      engine: rds.DatabaseClusterEngine.auroraMysql({
-        version: auroraMysqlEngineVersion
-      }),
-      vpc: vpc,
-      securityGroups: [secgroup01],
-      vpcSubnets: {
-          subnets: private_subnet,
-      },
-      credentials: {
-        username: 'admin',
-        password : SecretValue.unsafePlainText(dbpw)
-      },
-      clusterIdentifier: `${context.AWSENV}-to2go-app-rds-cluster`,
-      backup: {
-        retention: Duration.days(3),//30
-      },
-      defaultDatabaseName: 'app_development',
-      writer: rds.ClusterInstance.provisioned(`Instance1`, {
-        instanceType: context.RDSTYPE,
-        isFromLegacyInstanceProps: true,
-        instanceIdentifier: `${context.AWSENV}-to2go-app-rds-instance1`,
-      }),
-      parameters: {
-        slow_query_log: '1',
-        general_log: '1',
-        long_query_time: '3',
-        log_output: 'FILE',
-        server_audit_logging: '1',
-        server_audit_events: 'CONNECT,QUERY'
-      },
-      cloudwatchLogsExports:['error','general','slowquery','audit'],
-      cloudwatchLogsRetention: logs.RetentionDays.ONE_MONTH,
-      // cloudwatchLogsRetentionRole: LogsRetentionRole,
-      storageEncrypted: true,
-      deletionProtection: false,
-      iamAuthentication: true,
-      preferredMaintenanceWindow: 'Sat:16:00-Sat:16:30',
-      removalPolicy: RemovalPolicy.DESTROY,
-      subnetGroup: subnetGroup,
-      monitoringInterval: cdk.Duration.minutes(1)
-    })
-    //RDS用のSecurityGroupにQuickSightからのIngressルール追加
-    // cluster.connections.allowFrom(secgroup02, ec2.Port.tcp(3306))
+      const cluster = new rds.DatabaseCluster(this, `${context.AWSENV}-to2go-app-rds-aurora`, {
+        engine: rds.DatabaseClusterEngine.auroraMysql({
+          version: auroraMysqlEngineVersion
+        }),
+        vpc: vpc,
+        securityGroups: [secgroup01],
+        vpcSubnets: {
+            subnets: private_subnet,
+        },
+        credentials: {
+          username: 'admin',
+          password : SecretValue.unsafePlainText(dbpw)
+        },
+        clusterIdentifier: `${context.AWSENV}-to2go-app-rds-cluster`,
+        backup: {
+          retention: Duration.days(3),//30
+        },
+        defaultDatabaseName: 'app_development',
+        writer: rds.ClusterInstance.provisioned(`Instance1`, {
+          instanceType: context.RDSTYPE,
+          isFromLegacyInstanceProps: true,
+          instanceIdentifier: `${context.AWSENV}-to2go-app-rds-instance1`,
+        }),
+        parameters: {
+          slow_query_log: '1',
+          general_log: '1',
+          long_query_time: '3',
+          log_output: 'FILE',
+          server_audit_logging: '1',
+          server_audit_events: 'CONNECT,QUERY'
+        },
+        cloudwatchLogsExports:['error','general','slowquery','audit'],
+        cloudwatchLogsRetention: logs.RetentionDays.ONE_MONTH,
+        // cloudwatchLogsRetentionRole: LogsRetentionRole,
+        storageEncrypted: true,
+        deletionProtection: false,
+        iamAuthentication: true,
+        preferredMaintenanceWindow: 'Sat:16:00-Sat:16:30',
+        removalPolicy: RemovalPolicy.DESTROY,
+        subnetGroup: subnetGroup,
+        monitoringInterval: cdk.Duration.minutes(1)
+      })
+      //RDS用のSecurityGroupにQuickSightからのIngressルール追加
+      // cluster.connections.allowFrom(secgroup02, ec2.Port.tcp(3306))
     };
 
     //本番環境用RDS作成(リードレプリカ有り)

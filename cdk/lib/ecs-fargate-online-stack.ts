@@ -18,19 +18,18 @@ export class EcsFargateOnlineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
-const argContext = 'environment';
-const envKey = this.node.tryGetContext(argContext);
-    if (envKey == undefined)
-      throw new Error(`Please specify environment with context option. ex) cdk deploy -c ${argContext}=stg`);
-const context = this.node.tryGetContext(envKey);
-    if (context == undefined) throw new Error('Invalid environment.');
+    const argContext = 'environment';
+    const envKey = this.node.tryGetContext(argContext);
+      if (envKey == undefined)
+        throw new Error(`Please specify environment with context option. ex) cdk deploy -c ${argContext}=stg`);
+    const context = this.node.tryGetContext(envKey);
+      if (context == undefined) throw new Error('Invalid environment.');
 
-    const vpc = ec2.Vpc.fromLookup(this, 'VPCapp', {
-      vpcName: `${context.AWSENV}-to2go-app-vpc`,
-    });
+      const vpc = ec2.Vpc.fromLookup(this, 'VPCapp', {
+        vpcName: `${context.AWSENV}-to2go-app-vpc`,
+      });
 
-// IAM Role
-
+    // IAM Role
     const executionRole = new iam.Role(this, 'EcsTaskExecutionRole', {
       roleName: `${context.AWSENV}-to2go-online-EcsTaskExecutionRole`,
       assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
@@ -41,12 +40,11 @@ const context = this.node.tryGetContext(envKey);
 
     const ssmPolicy = new iam.Policy(this, 'ssm-policy', {
         statements:[ new iam.PolicyStatement( {
-           effect: iam.Effect.ALLOW,
-           actions: ['ssm:GetParameters'],
-           resources : ["*"],
-           }),
-          ],
-        })
+          effect: iam.Effect.ALLOW,
+          actions: ['ssm:GetParameters'],
+          resources : ["*"],
+        })],
+    })
 
     executionRole.attachInlinePolicy(ssmPolicy)
 
@@ -76,7 +74,7 @@ const context = this.node.tryGetContext(envKey);
     // serviceTaskRole.attachInlinePolicy(s3Policy)
     // serviceTaskRole.attachInlinePolicy(ecsexecPolicy)
 
-// ECS TaskDefinition
+  // ECS TaskDefinition
 
     const logGroup = new logs.LogGroup(this, 'ServiceLogGroup', {
       logGroupName: `${context.AWSENV}-to2go-app-online-fargate-log`
@@ -160,8 +158,7 @@ const context = this.node.tryGetContext(envKey);
       protocol: ecs.Protocol.TCP,
     })
 
-// ECS Service
-
+    // ECS Service
     const cluster = new ecs.Cluster(this, `${context.AWSENV}-to2go-app-online-ecs-cluster`, {
       vpc,
       clusterName: `${context.AWSENV}-to2go-app-online-ecs-cluster`,
@@ -179,67 +176,65 @@ const context = this.node.tryGetContext(envKey);
       exportName: 'online-sg-Id',
     });
 
-  const serviceFargateService = new ecs.FargateService(this, 'ServiceServiceDefinition', {
-  serviceName: `${context.AWSENV}-to2go-app-online-fargate-service`,
-  cluster,
-  vpcSubnets: vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }), // プライベートサブネットを選択
-  securityGroups: [securityGroup],
-  taskDefinition: serviceTaskDefinition,
-  assignPublicIp: true,
-  enableExecuteCommand : true,
-  desiredCount:context.ONLINETASK
-  })
+    const serviceFargateService = new ecs.FargateService(this, 'ServiceServiceDefinition', {
+      serviceName: `${context.AWSENV}-to2go-app-online-fargate-service`,
+      cluster,
+      vpcSubnets: vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }), // プライベートサブネットを選択
+      securityGroups: [securityGroup],
+      taskDefinition: serviceTaskDefinition,
+      assignPublicIp: true,
+      enableExecuteCommand : true,
+      desiredCount:context.ONLINETASK
+    })
 
-  const albsecurityGroup = new ec2.SecurityGroup(this, `${context.AWSENV}-to2go-app-online-alb-securitygroup`, {
-    vpc,
-    securityGroupName: `${context.AWSENV}-to2go-app-online-alb-securitygroup`,
-    allowAllOutbound: true
-  });
+    const albsecurityGroup = new ec2.SecurityGroup(this, `${context.AWSENV}-to2go-app-online-alb-securitygroup`, {
+      vpc,
+      securityGroupName: `${context.AWSENV}-to2go-app-online-alb-securitygroup`,
+      allowAllOutbound: true
+    });
 
-  securityGroup.addIngressRule(ec2.Peer.securityGroupId(albsecurityGroup.securityGroupId),ec2.Port.tcp(8000));
-  albsecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443));
+    securityGroup.addIngressRule(ec2.Peer.securityGroupId(albsecurityGroup.securityGroupId),ec2.Port.tcp(8000));
+    albsecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443));
 
-//Log用S3取得
-   const accessLogsBucket = s3.Bucket.fromBucketName(this, "MyBucket", `${context.AWSENV}-to2go-app-s3-access-logs-bucket`);
+    //Log用S3取得
+    const accessLogsBucket = s3.Bucket.fromBucketName(this, "MyBucket", `${context.AWSENV}-to2go-app-s3-access-logs-bucket`);
 
-// ALB
-   const alb = new albv2.ApplicationLoadBalancer(this, 'ALB', {
+    // ALB
+    const alb = new albv2.ApplicationLoadBalancer(this, 'ALB', {
       vpc,
       securityGroup: albsecurityGroup,
       internetFacing: true,
       loadBalancerName: `${context.AWSENV}-to2go-app-online-elb`
-   });
-   this.loadBalancer = alb
-   alb.logAccessLogs(accessLogsBucket,`alb-access-log/${context.AWSENV}-to2go-app-online-elb`)
+    });
+    this.loadBalancer = alb
+    alb.logAccessLogs(accessLogsBucket,`alb-access-log/${context.AWSENV}-to2go-app-online-elb`)
 
-const elbcertificate = Certificate.Certificate.fromCertificateArn(this, "Certificate",
+    const elbcertificate = Certificate.Certificate.fromCertificateArn(this, "Certificate",
       context.ELBCERT
-);
+    );
 
-const listenerHTTP = alb.addListener('ListenerHTTP', {
-  port: 443,
-  certificates: [elbcertificate],
-  sslPolicy: albv2.SslPolicy.RECOMMENDED_TLS,
-  open:false
-});
+    const listenerHTTP = alb.addListener('ListenerHTTP', {
+      port: 443,
+      certificates: [elbcertificate],
+      sslPolicy: albv2.SslPolicy.RECOMMENDED_TLS,
+      open:false
+    });
 
-// TargetGroup
-const targetGroup = new albv2.ApplicationTargetGroup(this, "TargetGroup", {
-  vpc,
-  port: 8000,
-  protocol: albv2.ApplicationProtocol.HTTP,
-  targetType: albv2.TargetType.IP,
-  healthCheck: {
-    path: '/',
-    healthyHttpCodes: '200',
-  },
-});
+    // TargetGroup
+    const targetGroup = new albv2.ApplicationTargetGroup(this, "TargetGroup", {
+      vpc,
+      port: 8000,
+      protocol: albv2.ApplicationProtocol.HTTP,
+      targetType: albv2.TargetType.IP,
+      healthCheck: {
+        path: '/',
+        healthyHttpCodes: '200',
+      },
+    });
 
-listenerHTTP.addTargetGroups('DefaultHTTPSResponse', {
-  targetGroups: [targetGroup]
-});
-serviceFargateService.attachToApplicationTargetGroup(targetGroup);
-
+    listenerHTTP.addTargetGroups('DefaultHTTPSResponse', {
+      targetGroups: [targetGroup]
+    });
+    serviceFargateService.attachToApplicationTargetGroup(targetGroup);
   }
- }
-
+}

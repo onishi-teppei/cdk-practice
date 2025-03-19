@@ -10,10 +10,10 @@ const app = new cdk.App();
 
 const argContext = 'environment';
 const envKey = app.node.tryGetContext(argContext);
-    if (envKey == undefined)
-      throw new Error(`Please specify environment with context option. ex) cdk deploy -c ${argContext}=stg`);
+  if (envKey == undefined)
+    throw new Error(`Please specify environment with context option. ex) cdk deploy -c ${argContext}=stg`);
 const envVals = app.node.tryGetContext(envKey);
-    if (envVals == undefined) throw new Error('Invalid environment.');
+  if (envVals == undefined) throw new Error('Invalid environment.');
 
 // 環境変数を設定
 const env = { account: envVals['env']['account'], region: envVals['env']['region'] };

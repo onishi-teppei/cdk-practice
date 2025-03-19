@@ -104,4 +104,6 @@ Rails.application.configure do
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
   config.hosts << "to2go_test.nexlink2.jp"
   config.hosts.clear
+  config.assets.digest = true
+  config.assets.precompile += %w(application.js application.css)
 end

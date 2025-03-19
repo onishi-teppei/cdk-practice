@@ -10,7 +10,6 @@ on:
 env:
   AWS_REGION: ap-northeast-1
   ECR_REPOSITORY: dev-to2go-app-ecr-repository
-  AWS_ASSUME_ROLE: ${{ secrets.AWSDEPLOYROLE }}
   ECS_SERVICE_ONLINE: dev-to2go-app-online-fargate-service
   ECS_CLUSTER_ONLINE: dev-to2go-app-online-ecs-cluster
   CONTAINER_NAME_ONLINE: dev-to2go-app-online
@@ -32,8 +31,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: ${{ env.AWS_ASSUME_ROLE }}
-          aws-region:  ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr

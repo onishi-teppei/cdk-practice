@@ -1,0 +1,26 @@
+services:
+  app: &app_base # アプリケーションサービス&app_baseは継承できるように
+    build: ./sample_app
+    stdin_open: true
+    tty: true
+    ports:
+      - "3000:3000"
+    command: bin/rails s -b 0.0.0.0
+    volumes:
+      - ./sample_app:/usr/src/app
+      - bundle_cache:/usr/local/bundle
+    depends_on:
+      - db
+  db:
+    image: mysql/mysql-server:8.0.32
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+      - MYSQL_ROOT_HOST=%
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  bundle_cache:
+  mysql_data:

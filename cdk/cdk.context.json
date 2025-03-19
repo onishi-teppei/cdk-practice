@@ -1,0 +1,57 @@
+{
+  "acknowledged-issue-numbers": [
+    32775,
+    32775
+  ],
+  "availability-zones:account=394253456454:region=ap-northeast-1": [
+    "ap-northeast-1b",
+    "ap-northeast-1c",
+    "ap-northeast-1d"
+  ],
+  "vpc-provider:account=394253456454:filter.tag:Name=dev-to2go-app-vpc:region=ap-northeast-1:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-0a3e0af6410601786",
+    "vpcCidrBlock": "10.30.0.0/16",
+    "ownerAccountId": "394253456454",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Private",
+        "type": "Private",
+        "subnets": [
+          {
+            "subnetId": "subnet-00ee8bd802e0e220a",
+            "cidr": "10.30.1.0/24",
+            "availabilityZone": "ap-northeast-1c",
+            "routeTableId": "rtb-076750a691349ba32"
+          },
+          {
+            "subnetId": "subnet-04e47011aecd6b3ee",
+            "cidr": "10.30.3.0/24",
+            "availabilityZone": "ap-northeast-1d",
+            "routeTableId": "rtb-076750a691349ba32"
+          }
+        ]
+      },
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-021860391b8840365",
+            "cidr": "10.30.0.0/24",
+            "availabilityZone": "ap-northeast-1c",
+            "routeTableId": "rtb-04e82e01b4abd5b03"
+          },
+          {
+            "subnetId": "subnet-0dfa38b4db5a39f3f",
+            "cidr": "10.30.2.0/24",
+            "availabilityZone": "ap-northeast-1d",
+            "routeTableId": "rtb-04e82e01b4abd5b03"
+          }
+        ]
+      }
+    ]
+  },
+  "ssm:account=394253456454:parameterName=TO2GO_DB_PASSWORD:region=ap-northeast-1": "n2rdsadmin123",
+  "ssm:account=394253456454:parameterName=/to2go/DB_PASSWORD:region=ap-northeast-1": "n2rdsadmin123"
+}

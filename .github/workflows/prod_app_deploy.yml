@@ -45,9 +45,10 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f sample_app/Dockerfile ./sample_app
+          cd sample_app
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           echo "Checking contents of the built image:"
-          docker run --rm $ECR_REGISTRY/$ECR_REPOSITORY:latest ls -la /
+          docker run --rm $ECR_REGISTRY/$ECR_REPOSITORY:latest ls -la
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:latest"
 

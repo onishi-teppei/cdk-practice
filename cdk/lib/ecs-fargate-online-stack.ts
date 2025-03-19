@@ -119,6 +119,7 @@ export class EcsFargateOnlineStack extends cdk.Stack {
         'DB_PORT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_PORT', '/to2go/DB_PORT')),
         'DB_USERNAME': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'DB_USERNAME', '/to2go/DB_USERNAME')),
         'SECRET_KEY_BASE': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'SECRET_KEY_BASE', '/to2go/SECRET_KEY_BASE')),
+        'RAILS_ENV': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'RAILS_ENV', '/to2go/RAILS_ENV')),
         // 'INTEC_ENDPOINT': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'INTEC_ENDPOINT', 'INTEC_ENDPOINT')),
         // 'JWT_PRIVATE_KEY': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'JWT_PRIVATE_KEY', 'JWT_PRIVATE_KEY')),
         // 'RAILS_ENV': ecs.Secret.fromSsmParameter(ssm.StringParameter.fromStringParameterName(this, 'RAILS_ENV', 'RAILS_ENV')),

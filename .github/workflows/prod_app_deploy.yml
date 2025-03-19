@@ -21,7 +21,7 @@ permissions:
 jobs:
   deploy:
     name: Deploy
-    runs-on: ubuntu-latest-arm64
+    runs-on: ubuntu-latest
     timeout-minutes: 25
 
     steps:

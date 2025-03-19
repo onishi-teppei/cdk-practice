@@ -20,7 +20,8 @@ RUN apt-get update && apt-get install -y \
 COPY Gemfile /usr/src/app
 COPY Gemfile.lock /usr/src/app
 RUN bundle install
-RUN RAILS_ENV=production bundle exec rails assets:precompile --trace
 COPY . /usr/src/app
+RUN ls -la
+RUN bundle exec rails assets:precompile RAILS_ENV=production
 
 CMD ["bundle", "exec", "rails", "-v"]

@@ -52,7 +52,7 @@ jobs:
 
       - name: Download online task definition
         run: |
-          aws ecs describe-task-definition --task-definition EcsFargateOnlineStackServiceTaskDefinitionDB758696 --query taskDefinition > task-definition-online.json
+          aws ecs describe-task-definition --task-definition EcsFargateOnlineStackServiceTaskDefinitionDB758696:28 --query taskDefinition > task-definition-online.json
 
       # - name: Download batch task definition
       #   run: |

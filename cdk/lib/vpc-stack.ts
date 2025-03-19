@@ -17,12 +17,13 @@ export class VpcStack extends Stack {
     // 親コンストラクトを設定
     super(scope, id, props);
 
-const argContext = 'environment';
-const envKey = this.node.tryGetContext(argContext);
-    if (envKey == undefined)
-      throw new Error(`Please specify environment with context option. ex) cdk deploy -c ${argContext}=stg`);
-const context = this.node.tryGetContext(envKey);
-    if (context == undefined) throw new Error('Invalid environment.');
+    const argContext = 'environment';
+    const envKey = this.node.tryGetContext(argContext);
+      if (envKey == undefined)
+        throw new Error(`Please specify environment with context option. ex) cdk deploy -c ${argContext}=stg`);
+    const context = this.node.tryGetContext(envKey);
+      if (context == undefined)
+        throw new Error('Invalid environment.');
 
     const vpc = new ec2.Vpc(this, `${context.AWSENV}-to2go-app-vpc`, {
       ipAddresses: ec2.IpAddresses.cidr(context.APPVPC_CIDR),
@@ -36,7 +37,7 @@ const context = this.node.tryGetContext(envKey);
       tags: [{
         key: 'Name',
         value: `${context.AWSENV}-to2go-app-igw`,
-       }],
+      }],
     });
 
     // Internet GatewayをVPCにアタッチ

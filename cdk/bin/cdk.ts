@@ -2,15 +2,18 @@
 import * as cdk from 'aws-cdk-lib';
 // import { CdkStack } from '../lib/cdk-stack';
 import {VpcStack} from '../lib/vpc-stack';
+import {EcrStack} from "../lib/ecr-stack";
+import {EcsFargateOnlineStack} from "../lib/ecs-fargate-online-stack";
+import {RdsStack} from '../lib/rds-stack';
 
 const app = new cdk.App();
 
 const argContext = 'environment';
 const envKey = app.node.tryGetContext(argContext);
-    if (envKey == undefined)
-      throw new Error(`Please specify environment with context option. ex) cdk deploy -c ${argContext}=stg`);
+  if (envKey == undefined)
+    throw new Error(`Please specify environment with context option. ex) cdk deploy -c ${argContext}=stg`);
 const envVals = app.node.tryGetContext(envKey);
-    if (envVals == undefined) throw new Error('Invalid environment.');
+  if (envVals == undefined) throw new Error('Invalid environment.');
 
 // 環境変数を設定
 const env = { account: envVals['env']['account'], region: envVals['env']['region'] };
@@ -18,7 +21,19 @@ const env = { account: envVals['env']['account'], region: envVals['env']['region
 // VPC Stackを作成
 const vpcStack = new VpcStack(app, 'VpcStack', {
   env,
-});
+})
+
+const ecrStack = new EcrStack(app, 'EcrStack', {
+  env,
+})
+
+const ecsFargateOnlineStack = new EcsFargateOnlineStack(app, 'EcsFargateOnlineStack', {
+  env,
+})
+
+new RdsStack(app, 'RdsStack', {
+  env,
+})
 
 // new CdkStack(app, 'CdkStack', {
 //   /* If you don't specify 'env', this stack will be environment-agnostic.

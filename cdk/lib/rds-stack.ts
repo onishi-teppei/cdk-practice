@@ -52,10 +52,10 @@ const context = this.node.tryGetContext(envKey);
     // });
 
     //RDS用のSecurityGroupにFargateからのIngressルール追加
-    const onlinesgId = cdk.Fn.importValue('online-sg-Id'); //こんな形でSGをimportする
+    // const onlinesgId = cdk.Fn.importValue('online-sg-Id'); //こんな形でSGをimportする
     // const batchsgId = cdk.Fn.importValue('batch-sg-Id');
 
-    secgroup01.addIngressRule(ec2.Peer.securityGroupId(onlinesgId),ec2.Port.tcp(3306));
+    secgroup01.addIngressRule(ec2.Peer.ipv4('10.30.0.0/16'), ec2.Port.tcp(3306));
     // secgroup01.addIngressRule(ec2.Peer.securityGroupId(batchsgId),ec2.Port.tcp(3306));
 
     //QuickSight用のSecurityGroupにRDSからのIngress/Egressルール追加

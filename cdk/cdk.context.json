@@ -52,5 +52,6 @@
       }
     ]
   },
-  "ssm:account=394253456454:parameterName=TO2GO_DB_PASSWORD:region=ap-northeast-1": "n2rdsadmin123"
+  "ssm:account=394253456454:parameterName=TO2GO_DB_PASSWORD:region=ap-northeast-1": "n2rdsadmin123",
+  "ssm:account=394253456454:parameterName=/to2go/DB_PASSWORD:region=ap-northeast-1": "n2rdsadmin123"
 }

@@ -90,6 +90,9 @@ const context = this.node.tryGetContext(envKey);
       taskRole: serviceTaskRole,
       cpu: context.ONLINECPU,
       memoryLimitMiB: context.ONLINEMEMORY,
+      runtimePlatform: {
+        cpuArchitecture: ecs.CpuArchitecture.of('ARM64')
+      }
     })
 
     serviceTaskDefinition.addContainer(`${context.AWSENV}-to2go-app-online`, {
@@ -102,8 +105,6 @@ const context = this.node.tryGetContext(envKey);
         "exec",
         "rails",
         "s",
-        "-e",
-        "production",
         "-p",
         "8000",
         "-b",
@@ -196,7 +197,7 @@ const context = this.node.tryGetContext(envKey);
   });
 
   securityGroup.addIngressRule(ec2.Peer.securityGroupId(albsecurityGroup.securityGroupId),ec2.Port.tcp(8000));
-  albsecurityGroup.addIngressRule(ec2.Peer.prefixList('pl-58a04531') ,ec2.Port.tcp(443));
+  albsecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443));
 
 //Log用S3取得
    const accessLogsBucket = s3.Bucket.fromBucketName(this, "MyBucket", `${context.AWSENV}-to2go-app-s3-access-logs-bucket`);
@@ -229,7 +230,7 @@ const targetGroup = new albv2.ApplicationTargetGroup(this, "TargetGroup", {
   protocol: albv2.ApplicationProtocol.HTTP,
   targetType: albv2.TargetType.IP,
   healthCheck: {
-    path: '/api/health_check',
+    path: '/',
     healthyHttpCodes: '200',
   },
 });

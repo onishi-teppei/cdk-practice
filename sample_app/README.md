@@ -1,24 +1,22 @@
-# README
+# プロジェクト概要
+簡単なフォームの入力と表示をするだけのアプリ
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## デプロイ環境
 
-Things you may want to cover:
+### AWS環境構成
+* ECS Fargate
+* ECR (コンテナレジストリ)
+* リージョン: ap-northeast-1 (東京)
 
-* Ruby version
+### デプロイフロー
+1. GitHub Actionsによる自動デプロイ
+   - masterブランチへのプッシュ時に自動実行
+   - `sample_app/**` 配下のファイル変更時のみ実行
+   - 手動トリガー（workflow_dispatch）も可能
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+2. デプロイプロセス
+   - AWS認証
+   - ECRへのログイン
+   - Dockerイメージのビルドとプッシュ
+   - ECSタスク定義の更新
+   - ECSサービスのデプロイ

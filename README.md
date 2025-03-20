@@ -3,6 +3,7 @@
 このリポジトリは、Ruby on RailsアプリケーションとそのインフラストラクチャをAWS上で管理・運用するためのものです。
 
 ## リポジトリ構造
+```
 ├── sample_app/ # Railsアプリケーション
 │ ├── app/ # アプリケーションのコア機能
 │ ├── config/ # 設定ファイル
@@ -17,6 +18,7 @@
 │ ├── rds-stack.ts # RDSリソース
 │ └── ecs-fargate-online-stack.ts # ECSリソース
 └── compose.yml # ローカル開発環境の設定
+```
 
 ## 技術スタック
 ### アプリケーション
@@ -40,24 +42,28 @@
 git clone [repository-url]
 ```
 
-2. 開発環境の起動
-```bash
-docker compose up -d
-```
-
-3. データベースの作成
+2. データベースの作成
 ```bash
 docker compose exec app bin/rails db:create
+```
+
+3. データベースのマイグレーション
+```bash
+docker compose exec app bin/rails db:migrate
+```
+
+4. 開発環境の起動
+```bash
+docker compose up -d
 ```
 
 ## デプロイメント
 GitHub Actionsを使用して、以下のワークフローを実装しています：
 1. CI（継続的インテグレーション）
-- セキュリティスキャン（Brakeman）
-- コードスタイルチェック（RuboCop）
-- テスト実行（RSpec）
+- 未実施
 
 2. CD（継続的デリバリー）
+github actionsで実施
 - ECRへのDockerイメージのプッシュ
 - ECS Fargateへのデプロイ
 

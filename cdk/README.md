@@ -119,6 +119,10 @@ npm run cdk:deploy-dev
 - --require-approval never
   - デプロイ時の承認プロンプトをスキップ。セキュリティに関わる変更であっても自動的にデプロイを進める
 
+## その他cdkコマンド
+変更セットだけ作る
+https://qiita.com/nasuB7373/items/9a43e1395f70a1862d08
+
 ## 主な変更ポイント
 
 ### 1. VPC設定の変更
@@ -176,17 +180,16 @@ secgroup01.addIngressRule(
 const value = context.NEW_VARIABLE;
 ```
 
-## トラブルシューティング
-
-1. デプロイエラー
-- AWSクレデンシャルの確認
-- リージョン設定の確認
-- 権限の確認
-
-2. スタックの削除
-```bash:README.md
+## スタックの削除
+```bash
 cdk destroy --all -c environment=dev
 ```
+
+個別でスタックを指定しての削除も可能
+```bash
+cdk destroy [stack名] -c environment=dev
+```
+
 
 ## 参考リンク
 

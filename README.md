@@ -1,167 +1,69 @@
-# CDKプロジェクト概要
+# プロジェクト概要
 
-このプロジェクトはAWS CDKを使用してインフラストラクチャをコードとして管理するためのものです。
+このリポジトリは、Ruby on RailsアプリケーションとそのインフラストラクチャをAWS上で管理・運用するためのものです。
 
-## プロジェクト構造
+## リポジトリ構造
+├── sample_app/ # Railsアプリケーション
+│ ├── app/ # アプリケーションのコア機能
+│ ├── config/ # 設定ファイル
+│ ├── db/ # データベース関連
+│ ├── spec/ # テストファイル
+│ └── Dockerfile # アプリケーションのコンテナ化設定
+├── cdk/ # AWSインフラ構成（CDK）
+│ ├── bin/ # CDKアプリケーションのエントリーポイント
+│ └── lib/ # インフラストラクチャスタック定義
+│ ├── vpc-stack.ts # VPCリソース
+│ ├── ecr-stack.ts # ECRリソース
+│ ├── rds-stack.ts # RDSリソース
+│ └── ecs-fargate-online-stack.ts # ECSリソース
+└── compose.yml # ローカル開発環境の設定
 
+## 技術スタック
+### アプリケーション
+- Ruby 3.3.6
+- Rails 7.2.2
+- MySQL 8.0.32
+
+### インフラストラクチャ
+- AWS CDK (TypeScript)
+- Docker/Docker Compose
+- AWS主要サービス
+  - ECS Fargate
+  - Aurora MySQL
+  - ECR
+  - ALB
+  - VPC
+
+## 開発環境のセットアップ
+1. リポジトリのクローン
+```bash
+git clone [repository-url]
 ```
-cdk/
-├── bin/
-│   └── cdk.ts           # メインのCDKアプリケーション
-├── lib/
-│   ├── vpc-stack.ts     # VPCスタック
-│   ├── ecr-stack.ts     # ECRスタック
-│   ├── rds-stack.ts     # RDSスタック
-│   └── ecs-fargate-online-stack.ts  # ECS Fargateスタック
-└── cdk.json             # CDK設定ファイル
+
+2. 開発環境の起動
+```bash
+docker compose up -d
 ```
 
-## スタックの概要
-
-### VPCスタック
-- VPCの作成
-- パブリック/プライベートサブネット
-- インターネットゲートウェイ
-- NATゲートウェイ
-- ルートテーブル
-
-### ECRスタック
-- コンテナイメージリポジトリ
-- リポジトリポリシー
-
-### RDSスタック
-- Aurora MySQL設定
-- セキュリティグループ
-- サブネットグループ
-
-### ECS Fargateスタック
-- Fargateサービス
-- タスク定義
-- ALB設定
-- オートスケーリング
-
-## 環境設定
-
-環境変数は`cdk.json`で管理されています：
-
-```json
-{
-  "dev": {
-    "env": {
-      "account": "YOUR_ACCOUNT_ID",
-      "region": "ap-northeast-1"
-    },
-    "AWSENV": "dev",
-    "APPVPC_CIDR": "10.30.0.0/16",
-    ...
-  }
-}
+3. データベースの作成
+```bash
+docker compose exec app bin/rails db:create
 ```
 
 ## デプロイメント
+GitHub Actionsを使用して、以下のワークフローを実装しています：
+1. CI（継続的インテグレーション）
+- セキュリティスキャン（Brakeman）
+- コードスタイルチェック（RuboCop）
+- テスト実行（RSpec）
 
-### 必要条件
-- Node.js 14.x以上
-- AWS CLI設定済み
-- AWS CDK CLI (`npm install -g aws-cdk`)
+2. CD（継続的デリバリー）
+- ECRへのDockerイメージのプッシュ
+- ECS Fargateへのデプロイ
 
-### デプロイ手順
-
-1. 依存関係のインストール
-```bash:README.md
-npm install
-```
-
-2. 環境の確認（差分チェック）
-```bash
-npm run cdk:diff-dev
-```
-
-3. デプロイの実行
-```bash
-npm run cdk:deploy-dev
-```
-
-## 主な変更ポイント
-
-### 1. VPC設定の変更
-```typescript
-const vpc = new ec2.Vpc(this, `${context.AWSENV}-to2go-app-vpc`, {
-  ipAddresses: ec2.IpAddresses.cidr(context.APPVPC_CIDR),
-  maxAzs: 2,
-  vpcName: `${context.AWSENV}-to2go-app-vpc`,
-  subnetConfiguration: [],
-});
-```
-
-- CIDRレンジの変更
-- サブネット構成の変更
-- アベイラビリティゾーンの設定
-
-### 2. ECS設定の変更
-```typescript
-const serviceTaskDefinition = new ecs.FargateTaskDefinition(this, 'ServiceTaskDefinition', {
-  executionRole: executionRole,
-  taskRole: serviceTaskRole,
-  cpu: context.ONLINECPU,
-  memoryLimitMiB: context.ONLINEMEMORY,
-});
-```
-
-- コンテナスペックの調整
-- タスク数の変更
-- オートスケーリング設定
-
-### 3. セキュリティグループの設定
-```typescript
-secgroup01.addIngressRule(
-  ec2.Peer.ipv4('10.30.0.0/16'),
-  ec2.Port.tcp(3306)
-);
-```
-
-- インバウンド/アウトバウンドルールの追加
-- ポート開放の設定
-
-## 環境変数の追加方法
-
-1. `cdk.json`に新しい環境変数を追加
-```json
-{
-  "dev": {
-    "NEW_VARIABLE": "value"
-  }
-}
-```
-
-2. スタック内で環境変数を使用
-```typescript
-const value = context.NEW_VARIABLE;
-```
-
-## トラブルシューティング
-
-1. デプロイエラー
-- AWSクレデンシャルの確認
-- リージョン設定の確認
-- 権限の確認
-
-2. スタックの削除
-```bash:README.md
-cdk destroy --all -c environment=dev
-```
-
-## 注意事項
-
-- 本番環境へのデプロイ前は必ず`cdk diff`で変更内容を確認
-- セキュリティグループの変更は慎重に行う
-- 環境変数の変更はすべての環境で反映されることを確認
-
-## 参考リンク
-
-- [AWS CDK Documentation](https://docs.aws.amazon.com/cdk/latest/guide/home.html)
-- [TypeScript CDK Examples](https://github.com/aws-samples/aws-cdk-examples)
-```
-
-このREADMEは、プロジェクトの構造、デプロイ方法、主な設定ポイント、トラブルシューティングなどの重要な情報を含んでいます。必要に応じて、プロジェクトの特性に合わせて内容を調整してください。
-```
+## インフラストラクチャの管理
+CDKを使用してインフラストラクチャをコード化しています。主要なスタックは以下の通りです：
+- VPCスタック: ネットワーク構成
+- ECRスタック: コンテナレジストリ
+- RDSスタック: データベース
+- ECS Fargateスタック: アプリケーション実行環境

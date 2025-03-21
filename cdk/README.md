@@ -65,59 +65,59 @@ https://github.com/scg-nxw/to2go-infra/blob/5fee772a291a3f4532c1ddb1c11269ced03a
 ### デプロイ手順
 
 1. 依存関係のインストール
-```bash
-npm ci
-```
-package-lock.json に基づいて依存関係をインストール
-node_modules/ を削除してからインストール
+  ```bash
+  npm ci
+  ```
+  package-lock.json に基づいて依存関係をインストール
+  node_modules/ を削除してからインストール
 
 2. ビルド
-```bash
-npm run build
-```
-実際のコマンドはcdk/package.json に記載されている↓
-```
-"build": "./node_modules/typescript/bin/tsc",
-```
+  ```bash
+  npm run build
+  ```
+  実際のコマンドはcdk/package.json に記載されている↓
+  ```
+  "build": "./node_modules/typescript/bin/tsc",
+  ```
 
-- buildの実施
-  - .tsファイルを.jsファイルに変換
-  - 型チェックの実行
-  - tsconfig.jsonの設定に基づいて処理
+  - buildの実施
+    - .tsファイルを.jsファイルに変換
+    - 型チェックの実行
+    - tsconfig.jsonの設定に基づいて処理
 
 3. 環境の確認（差分チェック）
-```bash
-npm run cdk:diff-dev
-```
-実際のコマンドはcdk/package.json に記載されている↓
-```
-"cdk:diff-dev": "cdk diff -c environment=dev || true",
-```
+  ```bash
+  npm run cdk:diff-dev
+  ```
+  実際のコマンドはcdk/package.json に記載されている↓
+  ```
+  "cdk:diff-dev": "cdk diff -c environment=dev || true",
+  ```
 
-- cdk diff
-  - [ローカルで変更した内容]と[デプロイ済みのCloudFormationスタックのテンプレート]の比較
-  - 実際のリソースを見てくれるわけではない
-- -c environment=dev
-  - environment=devというコンテキスト変数を設定し、開発環境用の設定を指定します
+  - cdk diff
+    - [ローカルで変更した内容]と[デプロイ済みのCloudFormationスタックのテンプレート]の比較
+    - 実際のリソースを見てくれるわけではない
+  - -c environment=dev
+    - environment=devというコンテキスト変数を設定し、開発環境用の設定を指定します
 
-本番にも `|| true` が入っているのが心配
+  本番にも `|| true` が入っているのが心配
 
 4. デプロイの実行
-```bash
-npm run cdk:deploy-dev
-```
-実際のコマンドはcdk/package.json に記載されている↓
-```
-"cdk:deploy-dev": "cdk deploy --all --require-approval never -c environment=dev"
-```
-- cdk deploy
-  - AWSのCDK（Cloud Development Kit）を使用してインフラストラクチャをデプロイするための基本コマンド
-  - 裏でCFnが実行される
-- --all
-  - すべてのスタックをデプロイする
-  - スタックごとに指定もできる
-- --require-approval never
-  - デプロイ時の承認プロンプトをスキップ。セキュリティに関わる変更であっても自動的にデプロイを進める
+  ```bash
+  npm run cdk:deploy-dev
+  ```
+  実際のコマンドはcdk/package.json に記載されている↓
+  ```
+  "cdk:deploy-dev": "cdk deploy --all --require-approval never -c environment=dev"
+  ```
+  - cdk deploy
+    - AWSのCDK（Cloud Development Kit）を使用してインフラストラクチャをデプロイするための基本コマンド
+    - 裏でCFnが実行される
+  - --all
+    - すべてのスタックをデプロイする
+    - スタックごとに指定もできる
+  - --require-approval never
+    - デプロイ時の承認プロンプトをスキップ。セキュリティに関わる変更であっても自動的にデプロイを進める
 
 ## その他cdkコマンド
 - 現在の CDK アプリに含まれるスタックの一覧を表示

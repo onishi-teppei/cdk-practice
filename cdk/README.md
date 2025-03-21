@@ -120,8 +120,21 @@ npm run cdk:deploy-dev
   - デプロイ時の承認プロンプトをスキップ。セキュリティに関わる変更であっても自動的にデプロイを進める
 
 ## その他cdkコマンド
-変更セットだけ作る
-https://qiita.com/nasuB7373/items/9a43e1395f70a1862d08
+- 現在の CDK アプリに含まれるスタックの一覧を表示
+  ```
+  cdk list
+  ```
+- CloudFormation テンプレートを生成
+  ```
+  cdk synth
+  ```
+- 変更セットだけ作る
+  - https://qiita.com/nasuB7373/items/9a43e1395f70a1862d08
+  ```
+  cdk deploy -m='prepare-change-set'
+  or
+  dk deploy --no-execute
+  ```
 
 ## 主な変更ポイント
 

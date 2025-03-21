@@ -1,14 +1,75 @@
-# Welcome to your CDK TypeScript project
+# プロジェクト概要
 
-This is a blank project for CDK development with TypeScript.
+このリポジトリは、Ruby on RailsアプリケーションとそのインフラストラクチャをAWS上で管理・運用するためのものです。
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## リポジトリ構造
+```
+├── sample_app/ # Railsアプリケーション
+│ ├── app/ # アプリケーションのコア機能
+│ ├── config/ # 設定ファイル
+│ ├── db/ # データベース関連
+│ ├── spec/ # テストファイル
+│ └── Dockerfile # アプリケーションのコンテナ化設定
+├── cdk/ # AWSインフラ構成（CDK）
+│ ├── bin/ # CDKアプリケーションのエントリーポイント
+│ └── lib/ # インフラストラクチャスタック定義
+│ ├── vpc-stack.ts # VPCリソース
+│ ├── ecr-stack.ts # ECRリソース
+│ ├── rds-stack.ts # RDSリソース
+│ └── ecs-fargate-online-stack.ts # ECSリソース
+└── compose.yml # ローカル開発環境の設定
+```
 
-## Useful commands
+## 技術スタック
+### アプリケーション
+- Ruby 3.3.6
+- Rails 7.2.2
+- MySQL 8.0.32
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `npx cdk deploy`  deploy this stack to your default AWS account/region
-* `npx cdk diff`    compare deployed stack with current state
-* `npx cdk synth`   emits the synthesized CloudFormation template
+### インフラストラクチャ
+- AWS CDK (TypeScript)
+- Docker/Docker Compose
+- AWS主要サービス
+  - ECS Fargate
+  - Aurora MySQL
+  - ECR
+  - ALB
+  - VPC
+
+## 開発環境のセットアップ
+1. リポジトリのクローン
+```bash
+git clone [repository-url]
+```
+
+2. データベースの作成
+```bash
+docker compose exec app bin/rails db:create
+```
+
+3. データベースのマイグレーション
+```bash
+docker compose exec app bin/rails db:migrate
+```
+
+4. 開発環境の起動
+```bash
+docker compose up -d
+```
+
+## デプロイメント
+GitHub Actionsを使用して、以下のワークフローを実装しています：
+1. CI（継続的インテグレーション）
+- 未実施
+
+2. CD（継続的デリバリー）
+github actionsで実施
+- ECRへのDockerイメージのプッシュ
+- ECS Fargateへのデプロイ
+
+## インフラストラクチャの管理
+CDKを使用してインフラストラクチャをコード化しています。主要なスタックは以下の通りです：
+- VPCスタック: ネットワーク構成
+- ECRスタック: コンテナレジストリ
+- RDSスタック: データベース
+- ECS Fargateスタック: アプリケーション実行環境

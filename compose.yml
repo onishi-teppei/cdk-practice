@@ -1,5 +1,5 @@
 services:
-  app: &app_base # アプリケーションサービス&app_baseは継承できるように
+  app:
     build: ./sample_app
     stdin_open: true
     tty: true
